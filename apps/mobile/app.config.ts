@@ -1,0 +1,54 @@
+
+import { ExpoConfig, ConfigContext } from 'expo/config';
+
+export default ({ config }: ConfigContext): ExpoConfig => ({
+    name: 'kamu-mobile',
+    slug: 'kamu-mobile',
+    version: '1.0.0',
+    orientation: 'portrait',
+    icon: './assets/icon.png',
+    userInterfaceStyle: 'light',
+    splash: {
+        image: './assets/splash.png',
+        resizeMode: 'contain',
+        backgroundColor: '#ffffff',
+    },
+    assetBundlePatterns: ['**/*'],
+    ios: {
+        supportsTablet: true,
+        bundleIdentifier: 'com.kamu.mobile',
+    },
+    android: {
+        adaptiveIcon: {
+            foregroundImage: './assets/adaptive-icon.png',
+            backgroundColor: '#ffffff',
+        },
+        package: 'com.kamu.mobile',
+    },
+    platforms: ['ios', 'android'],
+    plugins: [
+        [
+            '@rnmapbox/maps',
+            {
+                RNMapboxMapsImpl: 'mapbox',
+                RNMapboxMapsDownloadToken: process.env.EXPO_PUBLIC_MAPBOX_SECRET_TOKEN,
+            },
+        ],
+        [
+            'expo-location',
+            {
+                locationAlwaysAndWhenInUsePermission:
+                    'Allow Kamu to use your location to show nearby public spaces.',
+            },
+        ],
+        [
+            'expo-image-picker',
+            {
+                photosPermission:
+                    'The app accesses your photos to let you upload a profile picture or share photos of places.',
+                cameraPermission:
+                    'The app accesses your camera to let you take a profile picture or photo of a place.',
+            },
+        ],
+    ],
+});
