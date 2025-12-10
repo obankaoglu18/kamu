@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  password          String   // bcrypt hashed
+  displayName       String
+  avatarUrl         String?
+  homeCity          String?
+  trustScore        Float    @default(0.0)
+  contributionPoints Int     @default(0)
+  roles             String   @default("user") // user, moderator, admin
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  places            Place[]
+  reviews           Review[]
+  photos            Photo[]
+  bookmarks         Bookmark[]
+}
+
+model Place {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  category    String
+  tags        String // Comma separated tags
+  lat         Float
+  lng         Float
+  geohash     String?
+  avgRating   Float    @default(0.0)
+  ratingCount Int      @default(0)
+  reviewCount Int      @default(0)
+  status      String   @default("pending") // pending, active, flagged, removed
+  verifiedByVisits Int @default(0)
+  lastVerifiedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
+  user        User     @relation(fields: [createdBy], references: [id])
+  reviews     Review[]
+  photos      Photo[]
+  bookmarks   Bookmark[]
+}
+
+model Review {
+  id          String   @id @default(uuid())
+  rating      Int
+  text        String?
+  visitProof  String?  // gps_checkin, none
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  placeId     String
+  place       Place    @relation(fields: [placeId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  photos      Photo[]
+}
+
+model Photo {
+  id          String   @id @default(uuid())
+  url         String
+  license     String?
+  takenAt     DateTime?
+  createdAt   DateTime @default(now())
+  placeId     String?
+  place       Place?   @relation(fields: [placeId], references: [id])
+  reviewId    String?
+  review      Review?  @relation(fields: [reviewId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  placeId   String
+  place     Place    @relation(fields: [placeId], references: [id])
+
+  @@unique([userId, placeId])
+}
